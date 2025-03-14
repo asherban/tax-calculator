@@ -1,0 +1,379 @@
+.tax-calculator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.calculator-card {
+  width: 100%;
+  max-width: 800px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 32px;
+}
+
+/* Header section with title and reset button */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.header-section div {
+  flex: 1;
+}
+
+.reset-btn {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 16px;
+}
+
+.reset-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Year selector styles */
+.year-select {
+  width: 100%;
+  max-width: 200px;
+  padding: 12px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23444444%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 12px auto;
+  transition: border-color 0.2s;
+}
+
+.year-select:focus {
+  border-color: #4a89dc;
+}
+
+.year-select:hover {
+  border-color: #bbb;
+}
+
+h2 {
+  font-size: 28px;
+  margin: 0 0 8px 0;
+  color: #333;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.input-group {
+  margin-bottom: 32px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  font-size: 18px;
+  color: #555;
+}
+
+.income-input, .pension-input {
+  width: 100%;
+  padding: 12px 12px 12px 32px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.income-input:focus, .pension-input:focus {
+  border-color: #4a89dc;
+}
+
+/* Credit Points Input Styles */
+.credit-points-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.credit-points-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.credit-points-input:focus {
+  border-color: #4a89dc;
+}
+
+/* Pension Input Styles */
+.pension-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggest-pension-btn {
+  align-self: flex-start;
+  background-color: #f5f7fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggest-pension-btn:hover {
+  background-color: #e7eaee;
+  border-color: #ccc;
+}
+
+.credit-points-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 300px;
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.error-message {
+  color: #e74c3c;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.results-section {
+  margin-top: 32px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-summary {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.result-item {
+  flex: 1;
+  min-width: 150px;
+  background-color: #f5f7fa;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.result-item h3 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #555;
+}
+
+.tax-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #e74c3c;
+  margin: 0;
+}
+
+.tax-rate {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3498db;
+  margin: 0;
+}
+
+.net-income {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2ecc71;
+  margin: 0;
+}
+
+.tax-breakdown {
+  margin-top: 32px;
+}
+
+.tax-breakdown h3 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: #444;
+}
+
+/* Tax Summary Styles */
+.tax-summary {
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.tax-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.tax-summary-row.total {
+  border-bottom: none;
+  font-weight: 700;
+  font-size: 18px;
+  padding-top: 16px;
+}
+
+.bracket-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bracket-table th, 
+.bracket-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.bracket-table thead {
+  background-color: #f5f7fa;
+}
+
+.bracket-table th {
+  font-weight: 600;
+  color: #555;
+}
+
+.bracket-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.total-label {
+  text-align: right;
+  font-weight: 700;
+  color: #333;
+}
+
+.total-amount {
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .calculator-card {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .header-section {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .reset-btn {
+    margin-left: 0;
+    margin-top: 16px;
+  }
+
+  .result-summary {
+    flex-direction: column;
+  }
+
+  .bracket-table {
+    font-size: 14px;
+  }
+
+  .bracket-table th, 
+  .bracket-table td {
+    padding: 8px 4px;
+  }
+
+  .tooltip-text {
+    width: 200px;
+    right: -50px;
+  }
+} 
