@@ -1,34 +1,49 @@
 /**
- * Israeli Tax Data for Years 2020-2024
+ * Israeli Tax Data for Years 2019-2024
  * Source: Israeli Tax Authority
  * Based on: https://www.kolzchut.org.il/he/מדרגות_מס_הכנסה
  */
 
 // Tax data by year
 export const TAX_DATA = {
-  2020: {
+  2019: {
     TAX_BRACKETS: [
       { max: 75720, rate: 0.1 },
       { max: 108600, rate: 0.14 },
       { max: 174360, rate: 0.2 },
       { max: 242400, rate: 0.31 },
       { max: 504360, rate: 0.35 },
-      { max: 651600, rate: 0.47 },
+      { max: 649560, rate: 0.47 },
       { max: Infinity, rate: 0.5 }
     ],
-    TAX_CREDIT_POINT_VALUE: 2628,
-    MAX_PENSION_CONTRIBUTION_FOR_CREDIT: 7440, // 620 NIS per month * 12
+    TAX_CREDIT_POINT_VALUE: 2580,
+    MAX_PENSION_CONTRIBUTION_FOR_CREDIT: 7308, // 609 NIS per month * 12
     PENSION_CONTRIBUTION_PERCENTAGE_LIMIT: 0.07, // 7%
     PENSION_TAX_CREDIT_RATE: 0.35 // 35%
   },
-  2021: {
+  2020: {
     TAX_BRACKETS: [
       { max: 75960, rate: 0.1 },
       { max: 108960, rate: 0.14 },
       { max: 174960, rate: 0.2 },
       { max: 243120, rate: 0.31 },
-      { max: 504360, rate: 0.35 },
+      { max: 505920, rate: 0.35 },
       { max: 651600, rate: 0.47 },
+      { max: Infinity, rate: 0.5 }
+    ],
+    TAX_CREDIT_POINT_VALUE: 2628,
+    MAX_PENSION_CONTRIBUTION_FOR_CREDIT: 7440, // 620 NIS per month * 12
+    PENSION_CONTRIBUTION_PERCENTAGE_LIMIT: 0.07,
+    PENSION_TAX_CREDIT_RATE: 0.35
+  },
+  2021: {
+    TAX_BRACKETS: [
+      { max: 75480, rate: 0.1 },
+      { max: 108360, rate: 0.14 },
+      { max: 173880, rate: 0.2 },
+      { max: 241680, rate: 0.31 },
+      { max: 502920, rate: 0.35 },
+      { max: 647640, rate: 0.47 },
       { max: Infinity, rate: 0.5 }
     ],
     TAX_CREDIT_POINT_VALUE: 2616,
@@ -53,12 +68,12 @@ export const TAX_DATA = {
   },
   2023: {
     TAX_BRACKETS: [
-      { max: 79800, rate: 0.1 },
-      { max: 114240, rate: 0.14 },
-      { max: 183240, rate: 0.2 },
-      { max: 254880, rate: 0.31 },
-      { max: 530520, rate: 0.35 },
-      { max: 682920, rate: 0.47 },
+      { max: 81480, rate: 0.1 },
+      { max: 116760, rate: 0.14 },
+      { max: 187440, rate: 0.2 },
+      { max: 260520, rate: 0.31 },
+      { max: 542160, rate: 0.35 },
+      { max: 698280, rate: 0.47 },
       { max: Infinity, rate: 0.5 }
     ],
     TAX_CREDIT_POINT_VALUE: 2760,
@@ -68,16 +83,16 @@ export const TAX_DATA = {
   },
   2024: {
     TAX_BRACKETS: [
-      { max: 81480, rate: 0.1 },
-      { max: 116760, rate: 0.14 },
-      { max: 187440, rate: 0.2 },
-      { max: 260520, rate: 0.31 },
-      { max: 542160, rate: 0.35 },
-      { max: 698280, rate: 0.47 },
+      { max: 84120, rate: 0.1 },
+      { max: 120720, rate: 0.14 },
+      { max: 193800, rate: 0.2 },
+      { max: 269280, rate: 0.31 },
+      { max: 560280, rate: 0.35 },
+      { max: 721560, rate: 0.47 },
       { max: Infinity, rate: 0.5 }
     ],
-    TAX_CREDIT_POINT_VALUE: 2820,
-    MAX_PENSION_CONTRIBUTION_FOR_CREDIT: 7896, // 658 NIS per month * 12
+    TAX_CREDIT_POINT_VALUE: 2904,
+    MAX_PENSION_CONTRIBUTION_FOR_CREDIT: 7932, // 661 NIS per month * 12
     PENSION_CONTRIBUTION_PERCENTAGE_LIMIT: 0.07,
     PENSION_TAX_CREDIT_RATE: 0.35
   }
