@@ -483,4 +483,55 @@ h2 {
     width: 200px;
     right: -50px;
   }
+}
+
+.warning-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.warning-popup {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  text-align: right; /* RTL text alignment */
+  direction: rtl; /* Right-to-left text direction for Hebrew */
+}
+
+.warning-content h3 {
+  margin-top: 0;
+  color: #e74c3c;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.warning-content p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.dismiss-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.dismiss-btn:hover {
+  background-color: #2980b9;
 } 

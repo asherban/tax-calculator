@@ -12,7 +12,8 @@ const STORAGE_KEYS = {
   YEARLY_INCOME: 'tax_calculator_yearly_income',
   CREDIT_POINTS: 'tax_calculator_credit_points',
   PENSION_CONTRIBUTION: 'tax_calculator_pension_contribution',
-  TAX_YEAR: 'tax_calculator_tax_year'
+  TAX_YEAR: 'tax_calculator_tax_year',
+  WARNING_DISMISSED: 'tax_calculator_warning_dismissed'
 };
 
 // Helper functions for localStorage
@@ -242,6 +243,23 @@ const ResultsSection = ({
   )
 );
 
+// New popup warning component
+const WarningPopup = ({ onDismiss }) => (
+  <div className="warning-popup-overlay">
+    <div className="warning-popup">
+      <div className="warning-content">
+        <h3>אזהרה - הצהרת אחריות</h3>
+        <p>
+          המידע המוצג באתר עלול להכיל טעויות ומוצג להדגמה בלבד. יש לבדוק מידע מהימן באתר רשות המיסים ומומלץ להתיעץ עם מומחה מס לפני ביצוע פעולות כלשהים על סמך המידע המוצג
+        </p>
+        <button className="dismiss-btn" onClick={onDismiss}>
+          הבנתי
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const TaxCalculator = () => {
   // Initialize state from localStorage or use defaults
   const [yearlyIncome, setYearlyIncome] = useState(() => 
@@ -262,6 +280,11 @@ const TaxCalculator = () => {
   
   const [taxResult, setTaxResult] = useState(null);
   const [error, setError] = useState('');
+  
+  // State to track if warning has been dismissed
+  const [warningDismissed, setWarningDismissed] = useState(() => 
+    loadFromLocalStorage(STORAGE_KEYS.WARNING_DISMISSED, 'false') === 'true'
+  );
   
   // Create refs for input fields to maintain focus
   const yearlyIncomeRef = useRef(null);
@@ -362,8 +385,15 @@ const TaxCalculator = () => {
     localStorage.removeItem(STORAGE_KEYS.TAX_YEAR);
   };
 
+  // Handle warning dismissal
+  const handleDismissWarning = () => {
+    setWarningDismissed(true);
+    saveToLocalStorage(STORAGE_KEYS.WARNING_DISMISSED, 'true');
+  };
+
   return (
     <div className="tax-calculator">
+      {!warningDismissed && <WarningPopup onDismiss={handleDismissWarning} />}
       <div className="calculator-card">
         <div className="header-section">
           <div>
