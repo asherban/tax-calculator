@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   calculateIncomeTax, 
   formatCurrency, 
@@ -37,6 +37,211 @@ const loadFromLocalStorage = (key, defaultValue) => {
 // Available tax years
 const AVAILABLE_YEARS = Object.keys(TAX_DATA).map(Number).sort((a, b) => b - a); // Sort descending
 
+// Extract InputSection to be its own component
+const InputSection = ({
+  taxYear,
+  handleYearChange,
+  AVAILABLE_YEARS,
+  yearlyIncome,
+  handleIncomeChange,
+  yearlyIncomeRef,
+  error,
+  creditPoints,
+  handleCreditPointsChange,
+  creditPointsRef,
+  currentYearData,
+  pensionContribution,
+  handlePensionContributionChange,
+  pensionContributionRef,
+  suggestedPensionContribution,
+  handleSetSuggestedPension
+}) => (
+  <div className="input-section">
+    <div className="input-group">
+      <label htmlFor="tax-year">Tax Year</label>
+      <select 
+        id="tax-year" 
+        className="year-select"
+        value={taxYear}
+        onChange={handleYearChange}
+      >
+        {AVAILABLE_YEARS.map(year => (
+          <option key={year} value={year}>{year}</option>
+        ))}
+      </select>
+    </div>
+
+    <div className="input-group">
+      <label htmlFor="yearly-income">Annual Income (NIS)</label>
+      <div className="input-wrapper">
+        <span className="currency-symbol">₪</span>
+        <input
+          id="yearly-income"
+          type="text"
+          value={yearlyIncome}
+          onChange={handleIncomeChange}
+          placeholder="Enter your annual income"
+          className="income-input"
+          ref={yearlyIncomeRef}
+        />
+      </div>
+      {error && <p className="error-message">{error}</p>}
+    </div>
+
+    <div className="input-group">
+      <label htmlFor="credit-points">Tax Credit Points (נקודות זיכוי)</label>
+      <div className="credit-points-input-wrapper">
+        <input
+          id="credit-points"
+          type="text"
+          value={creditPoints}
+          onChange={handleCreditPointsChange}
+          placeholder="Enter number of tax credit points"
+          className="credit-points-input"
+          ref={creditPointsRef}
+        />
+        <div className="credit-points-info">
+          <span>Value per point: {formatCurrency(currentYearData.TAX_CREDIT_POINT_VALUE)}</span>
+          <div className="tooltip">
+            <span className="info-icon">ℹ️</span>
+            <span className="tooltip-text">
+              Every Israeli resident is entitled to at least 2.25 credit points.
+              Women receive an additional 0.5 point (total 2.75).
+              Parents, new immigrants, and others may be eligible for additional points.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="input-group">
+      <label htmlFor="pension-contribution">
+        Annual Pension Contribution (NIS)
+        <div className="tooltip">
+          <span className="info-icon">ℹ️</span>
+          <span className="tooltip-text">
+            You can receive a 35% tax credit on pension contributions up to 7% of your income
+            (maximum {formatCurrency(currentYearData.MAX_PENSION_CONTRIBUTION_FOR_CREDIT)} per year).
+          </span>
+        </div>
+      </label>
+      <div className="pension-input-wrapper">
+        <div className="input-wrapper">
+          <span className="currency-symbol">₪</span>
+          <input
+            id="pension-contribution"
+            type="text"
+            value={pensionContribution}
+            onChange={handlePensionContributionChange}
+            placeholder="Enter annual pension contribution"
+            className="pension-input"
+            ref={pensionContributionRef}
+          />
+        </div>
+        {yearlyIncome > 0 && (
+          <button 
+            className="suggest-pension-btn" 
+            onClick={handleSetSuggestedPension}
+            type="button"
+          >
+            Use optimal value ({formatCurrency(suggestedPensionContribution)})
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+// Extract ResultsSection to be its own component
+const ResultsSection = ({
+  taxResult,
+  yearlyIncome,
+  creditPoints,
+  currentYearData
+}) => (
+  taxResult && yearlyIncome > 0 ? (
+    <div className="results-section">
+      <div className="result-summary">
+        <div className="result-item">
+          <h3>Total Tax</h3>
+          <p className="tax-amount">{formatCurrency(taxResult.tax)}</p>
+        </div>
+        <div className="result-item">
+          <h3>Effective Tax Rate</h3>
+          <p className="tax-rate">{taxResult.effectiveRate}%</p>
+        </div>
+        <div className="result-item">
+          <h3>Net Income</h3>
+          <p className="net-income">{formatCurrency(Number(yearlyIncome) - taxResult.tax)}</p>
+        </div>
+      </div>
+      
+      <div className="tax-breakdown">
+        <h3>Tax Calculation Details ({taxResult.taxYear})</h3>
+        <div className="tax-summary">
+          <div className="tax-summary-row">
+            <span>Tax Before Credits:</span>
+            <span>{formatCurrency(taxResult.taxBeforeCredits)}</span>
+          </div>
+          
+          <div className="tax-summary-row">
+            <span>Credit Points Deduction ({creditPoints} points @ {formatCurrency(taxResult.creditPointValue)}):</span>
+            <span>-{formatCurrency(taxResult.creditPointsDeduction)}</span>
+          </div>
+          
+          {taxResult.pensionCreditDeduction > 0 && (
+            <div className="tax-summary-row">
+              <span>
+                Pension Credit ({currentYearData.PENSION_TAX_CREDIT_RATE * 100}% of {formatCurrency(taxResult.eligiblePensionContribution)}):
+              </span>
+              <span>-{formatCurrency(taxResult.pensionCreditDeduction)}</span>
+            </div>
+          )}
+          
+          <div className="tax-summary-row total">
+            <span>Final Tax Amount:</span>
+            <span>{formatCurrency(taxResult.tax)}</span>
+          </div>
+        </div>
+        
+        <h3>Tax Breakdown by Bracket</h3>
+        <table className="bracket-table">
+          <thead>
+            <tr>
+              <th>Bracket</th>
+              <th>Rate</th>
+              <th>Taxable</th>
+              <th>Tax</th>
+            </tr>
+          </thead>
+          <tbody>
+            {taxResult.brackets.map((bracket, index) => (
+              <tr key={index}>
+                <td>
+                  {formatCurrency(bracket.bracketMin)} - {bracket.bracketMax === Infinity ? '∞' : formatCurrency(bracket.bracketMax)}
+                </td>
+                <td>{bracket.bracketRate}%</td>
+                <td>{formatCurrency(bracket.taxableAmount)}</td>
+                <td>{formatCurrency(bracket.taxAmount)}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan="3" className="total-label">Total Tax Before Credits</td>
+              <td className="total-amount">{formatCurrency(taxResult.taxBeforeCredits)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  ) : (
+    <div className="no-results">
+      <p>Enter your income details to calculate your tax</p>
+    </div>
+  )
+);
+
 const TaxCalculator = () => {
   // Initialize state from localStorage or use defaults
   const [yearlyIncome, setYearlyIncome] = useState(() => 
@@ -57,6 +262,11 @@ const TaxCalculator = () => {
   
   const [taxResult, setTaxResult] = useState(null);
   const [error, setError] = useState('');
+  
+  // Create refs for input fields to maintain focus
+  const yearlyIncomeRef = useRef(null);
+  const creditPointsRef = useRef(null);
+  const pensionContributionRef = useRef(null);
 
   // Save to localStorage whenever values change
   useEffect(() => {
@@ -75,7 +285,7 @@ const TaxCalculator = () => {
     saveToLocalStorage(STORAGE_KEYS.TAX_YEAR, taxYear);
   }, [taxYear]);
 
-  // Calculate tax whenever inputs change
+  // Calculate tax whenever inputs change (no debounce)
   useEffect(() => {
     if (yearlyIncome && !isNaN(yearlyIncome) && yearlyIncome > 0) {
       const result = calculateIncomeTax(
@@ -98,6 +308,7 @@ const TaxCalculator = () => {
   const handleIncomeChange = (e) => {
     const value = e.target.value.replace(/[^\d]/g, ''); // Only allow digits
     setYearlyIncome(value);
+    yearlyIncomeRef.current.focus();
   };
 
   const handleCreditPointsChange = (e) => {
@@ -151,186 +362,6 @@ const TaxCalculator = () => {
     localStorage.removeItem(STORAGE_KEYS.TAX_YEAR);
   };
 
-  // Input section with form controls
-  const InputSection = () => (
-    <div className="input-section">
-      <div className="input-group">
-        <label htmlFor="tax-year">Tax Year</label>
-        <select 
-          id="tax-year" 
-          className="year-select"
-          value={taxYear}
-          onChange={handleYearChange}
-        >
-          {AVAILABLE_YEARS.map(year => (
-            <option key={year} value={year}>{year}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="yearly-income">Annual Income (NIS)</label>
-        <div className="input-wrapper">
-          <span className="currency-symbol">₪</span>
-          <input
-            id="yearly-income"
-            type="text"
-            value={yearlyIncome}
-            onChange={handleIncomeChange}
-            placeholder="Enter your annual income"
-            className="income-input"
-          />
-        </div>
-        {error && <p className="error-message">{error}</p>}
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="credit-points">Tax Credit Points (נקודות זיכוי)</label>
-        <div className="credit-points-input-wrapper">
-          <input
-            id="credit-points"
-            type="text"
-            value={creditPoints}
-            onChange={handleCreditPointsChange}
-            placeholder="Enter number of tax credit points"
-            className="credit-points-input"
-          />
-          <div className="credit-points-info">
-            <span>Value per point: {formatCurrency(currentYearData.TAX_CREDIT_POINT_VALUE)}</span>
-            <div className="tooltip">
-              <span className="info-icon">ℹ️</span>
-              <span className="tooltip-text">
-                Every Israeli resident is entitled to at least 2.25 credit points.
-                Women receive an additional 0.5 point (total 2.75).
-                Parents, new immigrants, and others may be eligible for additional points.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="pension-contribution">
-          Annual Pension Contribution (NIS)
-          <div className="tooltip">
-            <span className="info-icon">ℹ️</span>
-            <span className="tooltip-text">
-              You can receive a 35% tax credit on pension contributions up to 7% of your income
-              (maximum {formatCurrency(currentYearData.MAX_PENSION_CONTRIBUTION_FOR_CREDIT)} per year).
-            </span>
-          </div>
-        </label>
-        <div className="pension-input-wrapper">
-          <div className="input-wrapper">
-            <span className="currency-symbol">₪</span>
-            <input
-              id="pension-contribution"
-              type="text"
-              value={pensionContribution}
-              onChange={handlePensionContributionChange}
-              placeholder="Enter annual pension contribution"
-              className="pension-input"
-            />
-          </div>
-          {yearlyIncome > 0 && (
-            <button 
-              className="suggest-pension-btn" 
-              onClick={handleSetSuggestedPension}
-              type="button"
-            >
-              Use optimal value ({formatCurrency(suggestedPensionContribution)})
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  // Results section with tax calculation details
-  const ResultsSection = () => (
-    taxResult && yearlyIncome > 0 ? (
-      <div className="results-section">
-        <div className="result-summary">
-          <div className="result-item">
-            <h3>Total Tax</h3>
-            <p className="tax-amount">{formatCurrency(taxResult.tax)}</p>
-          </div>
-          <div className="result-item">
-            <h3>Effective Tax Rate</h3>
-            <p className="tax-rate">{taxResult.effectiveRate}%</p>
-          </div>
-          <div className="result-item">
-            <h3>Net Income</h3>
-            <p className="net-income">{formatCurrency(Number(yearlyIncome) - taxResult.tax)}</p>
-          </div>
-        </div>
-        
-        <div className="tax-breakdown">
-          <h3>Tax Calculation Details ({taxResult.taxYear})</h3>
-          <div className="tax-summary">
-            <div className="tax-summary-row">
-              <span>Tax Before Credits:</span>
-              <span>{formatCurrency(taxResult.taxBeforeCredits)}</span>
-            </div>
-            
-            <div className="tax-summary-row">
-              <span>Credit Points Deduction ({creditPoints} points @ {formatCurrency(taxResult.creditPointValue)}):</span>
-              <span>-{formatCurrency(taxResult.creditPointsDeduction)}</span>
-            </div>
-            
-            {taxResult.pensionCreditDeduction > 0 && (
-              <div className="tax-summary-row">
-                <span>
-                  Pension Credit ({currentYearData.PENSION_TAX_CREDIT_RATE * 100}% of {formatCurrency(taxResult.eligiblePensionContribution)}):
-                </span>
-                <span>-{formatCurrency(taxResult.pensionCreditDeduction)}</span>
-              </div>
-            )}
-            
-            <div className="tax-summary-row total">
-              <span>Final Tax Amount:</span>
-              <span>{formatCurrency(taxResult.tax)}</span>
-            </div>
-          </div>
-          
-          <h3>Tax Breakdown by Bracket</h3>
-          <table className="bracket-table">
-            <thead>
-              <tr>
-                <th>Bracket</th>
-                <th>Rate</th>
-                <th>Taxable</th>
-                <th>Tax</th>
-              </tr>
-            </thead>
-            <tbody>
-              {taxResult.brackets.map((bracket, index) => (
-                <tr key={index}>
-                  <td>
-                    {formatCurrency(bracket.bracketMin)} - {bracket.bracketMax === Infinity ? '∞' : formatCurrency(bracket.bracketMax)}
-                  </td>
-                  <td>{bracket.bracketRate}%</td>
-                  <td>{formatCurrency(bracket.taxableAmount)}</td>
-                  <td>{formatCurrency(bracket.taxAmount)}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="3" className="total-label">Total Tax Before Credits</td>
-                <td className="total-amount">{formatCurrency(taxResult.taxBeforeCredits)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    ) : (
-      <div className="no-results">
-        <p>Enter your income details to calculate your tax</p>
-      </div>
-    )
-  );
-
   return (
     <div className="tax-calculator">
       <div className="calculator-card">
@@ -349,8 +380,30 @@ const TaxCalculator = () => {
         </div>
         
         <div className="calculator-content">
-          <InputSection />
-          <ResultsSection />
+          <InputSection 
+            taxYear={taxYear}
+            handleYearChange={handleYearChange}
+            AVAILABLE_YEARS={AVAILABLE_YEARS}
+            yearlyIncome={yearlyIncome}
+            handleIncomeChange={handleIncomeChange}
+            yearlyIncomeRef={yearlyIncomeRef}
+            error={error}
+            creditPoints={creditPoints}
+            handleCreditPointsChange={handleCreditPointsChange}
+            creditPointsRef={creditPointsRef}
+            currentYearData={currentYearData}
+            pensionContribution={pensionContribution}
+            handlePensionContributionChange={handlePensionContributionChange}
+            pensionContributionRef={pensionContributionRef}
+            suggestedPensionContribution={suggestedPensionContribution}
+            handleSetSuggestedPension={handleSetSuggestedPension}
+          />
+          <ResultsSection 
+            taxResult={taxResult}
+            yearlyIncome={yearlyIncome}
+            creditPoints={creditPoints}
+            currentYearData={currentYearData}
+          />
         </div>
       </div>
     </div>
